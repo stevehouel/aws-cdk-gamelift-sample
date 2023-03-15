@@ -1,0 +1,86 @@
+Name: onPushToMainDeployPipeline
+SchemaVersion: "1.0"
+Triggers:
+  - Type: PUSH
+    Branches:
+      - main
+Actions:
+  BuildAndTest:
+    Compute:
+      Type: Lambda
+    Identifier: aws/build@v1
+    Inputs:
+      Sources:
+        - WorkflowSource
+    Outputs:
+      Artifacts:
+        - Name: build
+          Files:
+            - cdk/**/*
+      AutoDiscoverReports:
+        ReportNamePrefix: Test
+        IncludePaths:
+          - coverage/**
+          - reports/**
+    Configuration:
+      Steps:
+        - Run: npm install
+        - Run: npm test -- --coverage --watchAll=false --testResultsProcessor="jest-junit"
+        - Run: npm run build
+        - Run: mkdir -p cdk/frontend/build
+        - Run: mv build/* cdk/frontend/build/
+  CDKBootstrapAction:
+    Compute:
+      Type: Lambda
+    Identifier: aws/cdk-bootstrap@v1
+    Configuration:
+      Region: us-west-2
+    Environment:
+      Name: development
+      Connections:
+        - Name: "653738050483"
+          Role: CodeCatalystPreviewDevelopmentAdministrator-q6yy7n
+    Inputs:
+      Sources:
+        - WorkflowSource
+  CDKDeploy-Dev:
+    Compute:
+      Type: Lambda
+    Identifier: aws/cdk-deploy@v1
+    DependsOn:
+      - CDKBootstrapAction
+      - BuildAndTest
+    Inputs:
+      Artifacts:
+        - build
+    Configuration:
+      StackName: awssummit-demo01-frontendstack
+      Region: us-west-2
+      Context: '{"stack_name": "awssummit-demo01-frontendstack"}'
+      CdkRootPath: cdk
+    Environment:
+      Name: development
+      Connections:
+        - Name: "653738050483"
+          Role: CodeCatalystPreviewDevelopmentAdministrator-q6yy7n
+  AWSCDKdeploy_79:
+    Identifier: aws/cdk-deploy@v1
+    Configuration:
+      CdkRootPath: cdk
+      Context: '{"stack_name":"awssummit-demo01-frontendstack"}'
+      Tags: '{"Project":"AWSSummit2023"}'
+      Region: eu-west-3
+      StackName: awssummit-demo01-frontendstack
+    Compute:
+      Type: Lambda
+    Environment:
+      Connections:
+        - Role: CodeCatalystPreviewDevelopmentAdministrator-q6yy7n
+          Name: "653738050483"
+      Name: production
+    DependsOn:
+      - CDKDeploy-Dev
+    Inputs:
+      Artifacts:
+        - build
+      Sources: []
