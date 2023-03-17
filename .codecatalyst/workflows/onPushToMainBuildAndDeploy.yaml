@@ -20,6 +20,8 @@ Actions:
         ReportNamePrefix: rpt
     Configuration:
       Steps:
-        - Run: n
+        - Run: npm install
+        - Run: cd packages/infra && npm run build
+        - Run: cd packages/infra && npm run cdk synth
     Compute:
       Type: EC2
