@@ -28,3 +28,19 @@ Actions:
         - Run: cd packages/infra && npm run build
     Compute:
       Type: Lambda
+  EuWest1Dev-Deploy:
+    Identifier: aws/cdk-deploy@v1
+    Configuration:
+      Region: eu-west-1
+      StackName: InfraStack
+    Environment:
+      Connections:
+        - Role: CodeCatalystPreviewDevelopmentAdministrator-q6yy7n
+          Name: "653738050483"
+      Name: EuWest1-Dev
+    DependsOn:
+      - Build
+    Inputs:
+      Artifacts:
+        - Build
+      Sources: []
