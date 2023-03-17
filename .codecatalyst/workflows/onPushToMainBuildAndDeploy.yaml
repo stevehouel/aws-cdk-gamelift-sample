@@ -18,10 +18,13 @@ Actions:
       AutoDiscoverReports:
         Enabled: true
         ReportNamePrefix: rpt
+      Artifacts:
+        - Name: Build
+          Files:
+            - packages/**
     Configuration:
       Steps:
         - Run: npm install
         - Run: cd packages/infra && npm run build
-        - Run: npm run cdk synth
     Compute:
       Type: Lambda
