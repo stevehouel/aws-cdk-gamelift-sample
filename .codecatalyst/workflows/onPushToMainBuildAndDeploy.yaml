@@ -22,6 +22,6 @@ Actions:
       Steps:
         - Run: npm install
         - Run: cd packages/infra && npm run build
-        - Run: cd packages/infra && npm run cdk synth
+        - Run: npm run cdk synth
     Compute:
-      Type: EC2
+      Type: Lambda
