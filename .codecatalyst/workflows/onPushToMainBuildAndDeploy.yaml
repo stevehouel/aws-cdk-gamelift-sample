@@ -21,7 +21,7 @@ Actions:
       Artifacts:
         - Name: Build
           Files:
-            - packages/**
+            - ./**
     Configuration:
       Steps:
         - Run: npm install
@@ -31,8 +31,11 @@ Actions:
   EuWest1Dev-Deploy:
     Identifier: aws/cdk-deploy@v1
     Configuration:
+      CdkRootPath: packages/infra
       Region: eu-west-1
       StackName: InfraStack
+    Compute:
+      Type: Lambda
     Environment:
       Connections:
         - Role: CodeCatalystPreviewDevelopmentAdministrator-q6yy7n
